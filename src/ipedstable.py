@@ -15,7 +15,7 @@ class IpedsTable(object):
             raise ValueError('IpedsTable requires either a Pandas DataFrame or a filename')
 
         self.update_columns()
-        self.update_index()
+        # self.update_index()
         return
 
     def __len__(self):
@@ -33,15 +33,15 @@ class IpedsTable(object):
     def tail(self,n=5):
         return self.df.tail(n)
 
-    def update_index(self):
-        if self.df.index.name != 'unitid':
-            try:
-                self.df.set_index('unitid', inplace=True)
-                self.columns = self.df.columns
-            except:
-                raise KeyError('Dataframe or file has no "unitid" column')
-        self.rows = self.df.index.values 
-        return
+    # def update_index(self):
+    #     if self.df.index.name != 'unitid':
+    #         try:
+    #             self.df.set_index('unitid', inplace=True)
+    #             self.columns = self.df.columns
+    #         except:
+    #             raise KeyError('Dataframe or file has no "unitid" column')
+    #     self.rows = self.df.index.values 
+    #     return
 
     def update_columns(self):
         self.df.columns = [c.strip().lower() for c in self.df.columns]
@@ -77,7 +77,7 @@ class IpedsTable(object):
         self.rows = self.df.index.values
         return
 
-    def drop_imputations(self, imputation_types, column_list=None, how='all'):
+    def purge_imputations(self, imputation_types, column_list=None, how='all'):
         if how.lower() not in ['all','any']:
             raise ValueError('Invalid method. Valid methods are "all" and "any".')
         
