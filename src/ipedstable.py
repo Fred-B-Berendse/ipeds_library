@@ -63,12 +63,10 @@ class IpedsTable(object):
             return column_list + self.get_imputation_columns(column_list)
         else:
             return self.df.columns 
-        return
 
     def get_imputation_columns(self, column_list=None):
         col_list = column_list if column_list else self.df.columns
         imputation_columns = ['x'+c for c in col_list if 'x'+c in self.columns]
-
         return list(set(imputation_columns))
 
     def dropna(self, column_list, how='all'):
