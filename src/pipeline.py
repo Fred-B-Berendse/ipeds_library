@@ -43,24 +43,3 @@ class Pipeline(object):
     def close(self):
         self.conn.close()
 
-
-if __name__ == '__main__':
-    
-    exclude_list = [
-            ImputationTypes.data_not_usable,
-            ImputationTypes.do_not_know,
-            ImputationTypes.left_blank,
-            ImputationTypes.not_applicable
-            ]
-
-    adm2017 = IpedsTable(filepath='data/adm2017.csv')
-    hd2017 = IpedsTable(filepath='data/hd2017.csv')
-    column_list = ['enrlpt']
-    adm2017.drop_imputations(exclude_list,column_list,how='any')
-    adm2017.write_csv('data/test.csv')
-    tables = {
-            'hd2017':hd2017,
-            'adm2017':adm2017
-            }
-    table_collection = IpedsCollection(table_dict=tables)
-    merged_table = table_collection.join_all()
