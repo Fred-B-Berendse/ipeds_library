@@ -1,4 +1,3 @@
-from imputationtypes import ImputationTypes
 from ipedstable import IpedsTable
 from copy import deepcopy
 
@@ -88,39 +87,3 @@ class IpedsCollection(object):
         if not all(['table' in entry.keys() for entry in self.meta.values()]):
             raise KeyError('One or more tables has not been imported.')
         return 
-            
-
-if __name__ == '__main__':
-    
-    exclude_list = [
-            ImputationTypes.data_not_usable,
-            ImputationTypes.do_not_know,
-            ImputationTypes.left_blank,
-            ImputationTypes.not_applicable
-            ]
-
-    adm2017 = IpedsTable(filepath='data/adm2017.csv')
-    hd2017 = IpedsTable(filepath='data/hd2017.csv')
-    #column_list = ['enrlpt']
-    #adm2017.purge_imputations(exclude_list,column_list,how='any')
-    #adm2017.write_csv('data/test.csv')
-
-    tc = IpedsCollection()
-    tc.update_meta(
-            'hd2017',
-            table=hd2017,
-            keep_columns=['instnm','city','stabbr'],
-            exclude_imputations=exclude_list)
-    tc.update_meta(
-            'adm2017',
-            table=adm2017,
-            keep_columns='all',
-            exclude_imputations=exclude_list)
-    tc.update_meta(
-            'gr2017',
-            filepath='data/gr2017.csv',
-            keep_columns='all',
-            exclude_imputations=exclude_list)
-
-    tc.clean_tables()
-    merged_table = tc.join_all()
