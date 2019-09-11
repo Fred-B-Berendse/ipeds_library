@@ -35,34 +35,43 @@ class ImputationTypes(object):
         return None
 
 
-class IpedsDatabase(object):
+class IpedsCollection(object):
     ''' A collection of multiple IpedsTables '''
     
 
-    def __init__(self, tables=None):
-        # attributes include each name of database and its object as k,v 
-        # pair in __dict__
-        pass
+    def __init__(self, table_dict = {}):
 
-    def add(self,A):
-        # adds IpedsTable A to the database
-        pass
+        self.names = []
+        for name,table in table_dict.items():
+            self.add(name,table)
+        return
 
-    def add_from_file(self, filepath):
-        # reads a csv file to an IpedsTable and adds it to the database
-        pass
+    def add(self,name,table):
 
-    def drop(self,A):
-        # drops IpedsTable A from the database
-        pass
-    
-    def join(self, table_list):
-        # join tables in table_list on unitid; returns a new IpedsTable
-        pass
+        if not isinstance(table,IpedsTable):
+            raise TypeError("table must be an instance of IpedsTable.")
+        setattr(self,name,table)
+        self.names.append(name) 
+        return
 
-    def write_sql(self, filename):
-        # writes a sql file for the database
-        pass
+    def drop(self,name):
+        try:
+            delattr(self,name)
+            self.names.remove(name)
+        except:
+            raise NameError('table name not found')
+        return 
+
+    def join_all(self):
+        
+        for i,name in enumerate(self.names):
+            table = getattr(self,name)
+            if i == 0:
+                merged_df = table.df
+            else:
+                merged_df = merged_df.join(table.df,rsuffix=name)
+
+        return IpedsTable(df=merged_df)
 
 
 class IpedsTable(object):
@@ -70,17 +79,19 @@ class IpedsTable(object):
     
     def __init__(self, df=None, filepath=None):
         self.df = df
-        if df is not None:
+
+        if isinstance(df,pd.DataFrame):
             self.df = df       
         elif filepath:
-            self.df = pd.read_csv(filepath)
+            self.df = pd.read_csv(filepath,encoding="cp1252")
         else:
-            raise ValueError('Table requires either a Pandas DataFrame or a filename')
+            raise ValueError('IpedsTable requires either a Pandas DataFrame or a filename')
+
         self.update_columns()
-        self.update_rows()
+        self.update_index()
         return
 
-    def update_rows(self):
+    def update_index(self):
 
         if self.df.index.name != 'unitid':
             try:
@@ -164,9 +175,6 @@ class IpedsTable(object):
                 )
         return
 
-    def write_sql(self,tablename,filepath,):
-        
-        pass
 
 if __name__ == '__main__':
     
@@ -178,6 +186,13 @@ if __name__ == '__main__':
             ]
 
     adm2017 = IpedsTable(filepath='data/adm2017.csv')
+    hd2017 = IpedsTable(filepath='data/hd2017.csv')
     column_list = ['enrlpt']
     adm2017.drop_imputations(exclude_list,column_list,how='any')
     adm2017.write_csv('data/test.csv')
+    tables = {
+            'hd2017':hd2017,
+            'adm2017':adm2017
+            }
+    table_collection = IpedsCollection(table_dict=tables)
+    merged_table = table_collection.join_all()
