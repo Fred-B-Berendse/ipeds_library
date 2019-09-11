@@ -1,6 +1,6 @@
 from imputationtypes import ImputationTypes
 from ipedstable import IpedsTable
-from copy import copy
+from copy import deepcopy
 
 class IpedsCollection(object):
     ''' A collection of multiple IpedsTables '''
@@ -24,7 +24,7 @@ class IpedsCollection(object):
         
         if table:
             if isinstance(table,IpedsTable):
-                entry.update({'table':copy(table)})
+                entry.update({'table':deepcopy(table)})
             else:
                 raise TypeError('table must be an instance of IpedsTable')
         
@@ -32,15 +32,22 @@ class IpedsCollection(object):
             entry.update({'filepath':filepath})
                 
         if keep_columns:
+            if isinstance(keep_columns,list) and ('unitid' not in keep_columns):
+                keep_columns.append('unitid')    
             entry.update({'keep_columns':keep_columns}) 
             
         if exclude_imputations:
             entry.update({'exclude_imputations':exclude_imputations})
         return
 
-    def drop(self,name):
+    def drop_meta(self,name):
         del self.meta[name]
         return 
+
+    def import_all(self):
+        for name in self.meta.keys():
+            self.import_table(name)
+        return
 
     def import_table(self,name):
         entry = self.meta[name]
@@ -64,17 +71,20 @@ class IpedsCollection(object):
         return 
 
     def join_all(self):
-        self.validate_table_imports()
+        self._validate_table_imports()
         merged_df = None
         for name,entry in self.meta.items():
             table = entry['table']
-            if not merged_df:
-                merged_df = table.df
+            if merged_df is None:
+                merged_df = table.df.copy()
             else:
-                merged_df = merged_df.join(table.df,on='unitid',rsuffix=name)
+                merged_df = merged_df.merge(
+                        table.df,
+                        on='unitid',
+                        suffixes=('','_'+name))
         return IpedsTable(df=merged_df)
 
-    def validate_table_imports(self):
+    def _validate_table_imports(self):
         if not all(['table' in entry.keys() for entry in self.meta.values()]):
             raise KeyError('One or more tables has not been imported.')
         return 
@@ -113,4 +123,4 @@ if __name__ == '__main__':
             exclude_imputations=exclude_list)
 
     tc.clean_tables()
-   # merged_table = tc.join_all()
+    merged_table = tc.join_all()
