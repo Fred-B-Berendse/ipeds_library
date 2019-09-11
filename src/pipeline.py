@@ -1,45 +1,32 @@
-from imputationtypes import ImputationTypes
-from ipedstable import IpedsTable
+from imputationtypes import ImputationTypes as it
 from ipedscollection import IpedsCollection
+from dbpipeline import DatabasePipeline as dp
 
-class Pipeline(object):
-    """Class for executing a series of SQL commands as a pipeline.
-    """
-    def __init__(self, conn, ):
-        """
-        Parameters
-        ----------
-        conn : SQL connection object
-        Returns
-        -------
-        None
-        """
-        self.conn = conn
-        self.c = conn.cursor()
-        self.steps = []
+if __name__ == '__main__':
+    
+    exclude_list = [
+            it.data_not_usable,
+            it.do_not_know,
+            it.left_blank,
+            it.not_applicable
+            ]
 
-    def add_step(self, query, params=None):
-        """Add a query to this pipeline.
+    tc = IpedsCollection()
+    tc.update_meta(
+            'hd2017',
+            filepath='data/hd2017.csv',
+            keep_columns=['instnm','city','stabbr'],
+            exclude_imputations=exclude_list)
+    tc.update_meta(
+            'adm2017',
+            filepath='data/adm2017.csv',
+            keep_columns='all',
+            exclude_imputations=exclude_list)
+    tc.update_meta(
+            'gr2017',
+            filepath='data/gr2017.csv',
+            keep_columns='all',
+            exclude_imputations=exclude_list)
 
-        Parameters
-        ----------
-        query : SQL Query string.
-        params : dict of params to format the query with
-
-        Returns
-        -------
-        None
-        """
-        self.steps.append((query, params))
-
-    def execute(self):
-        """Execute all steps in the pipeline.
-        """
-        for step, params in self.steps:
-            self.c.execute(step, params)
-
-        self.conn.commit()
-
-    def close(self):
-        self.conn.close()
-
+    tc.clean_tables()
+    merged_table = tc.join_all()
