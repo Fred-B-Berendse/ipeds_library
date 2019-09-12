@@ -6,6 +6,9 @@ class IpedsTable(object):
     
     def __init__(self, df=None, filepath=None):
         self.df = df
+        self.columns = None
+        self.rows = None
+
         if isinstance(df,pd.DataFrame):
             self.df = df       
         elif filepath:
@@ -61,7 +64,6 @@ class IpedsTable(object):
             raise ValueError('Invalid method. Valid methods are "all" and "any".')
             
         self.df.dropna(axis=0, how=how, subset=column_list, inplace=True)
-        self.rows = self.df.index.values
         return
 
     def purge_imputations(self, imputation_types, column_list=None, how='all'):
@@ -78,7 +80,6 @@ class IpedsTable(object):
             row_mask = notin_imputation_list.any(axis=1)
         
         self.df = self.df[row_mask]
-        self.rows = self.df.index.values
         return
 
     def write_csv(self,filepath):
