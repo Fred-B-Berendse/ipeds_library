@@ -58,6 +58,7 @@ class IpedsCollection(object):
 
     def clean_tables(self,dropna=False):
         for name in self.meta.keys():
+            print(f"processing table {name}")
             self.import_table(name)
             entry = self.meta[name]
             table = entry['table']
@@ -73,6 +74,7 @@ class IpedsCollection(object):
         self._validate_table_imports()
         merged_df = None
         for name,entry in self.meta.items():
+            print(f'Merging {name}')
             table = entry['table']
             if merged_df is None:
                 merged_df = table.df.copy()
