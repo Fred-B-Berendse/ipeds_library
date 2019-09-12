@@ -51,33 +51,32 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # GR2017 table
-gr_keep = ['unitid','chrtstat','cohort','graiant','grasiat','grbkaat','grhispt','grnhpit',
-           'grwhitt','gr2mort']
-tc.update_meta(
-        'gr2017',
-        filepath='data/gr2017.csv',
-        keep_columns=gr_keep,
-        exclude_imputations=exclude_list)
-
+# gr_keep = ['unitid','chrtstat','cohort','graiant','grasiat','grbkaat','grhispt','grnhpit',
+#            'grwhitt','gr2mort']
+# tc.update_meta(
+#         'gr2017',
+#         filepath='data/gr2017.csv',
+#         keep_columns=gr_keep,
+#         exclude_imputations=exclude_list)
+# 
 # GR2017_PELL_SSL table
-pell_ssl_keep = ['unitid','pgsrtype','pgadjct','pgcmtot','ssadjct','sscmtot','nradjct','nrcmtot']
-tc.update_meta(
-        'gr2017_pell_ssl',
-        filepath='data/gr2017_pell_ssl.csv',
-        keep_columns=pell_ssl_keep,
-        exclude_imputations=exclude_list)
+# pell_ssl_keep = ['unitid','pgsrtype','pgadjct','pgcmtot','ssadjct','sscmtot','nradjct','nrcmtot']
+# tc.update_meta(
+#         'gr2017_pell_ssl',
+#         filepath='data/gr2017_pell_ssl.csv',
+#         keep_columns=pell_ssl_keep,
+#         exclude_imputations=exclude_list)
 
-tc.clean_tables()
-merged_table = tc.join_all()
-
-merged_table.write_csv('data/data_2017.csv')
-
+tc.pipeline_all(keep_table=False)
+print("writing to file")
+tc.merged_table.write_csv('data/adm_comp_2017.csv')
+print("writing to database")
 ipdb = IpedsDatabase('localhost','5435','postgres','ipeds')
-ipdb.to_sql(merged_table,'data_2017')
-
-sqlstr = "SELECT unitid,instnm,city,stabbr FROM data_2017 LIMIT 5;"
-result_set = ipdb.execute(sqlstr)
-for r in result_set:
-    print(r)
+ipdb.to_sql(tc.merged_table,'adm_comp_2017')
+print("DONE!")
+# sqlstr = "SELECT unitid,instnm,city,stabbr FROM ipeds_2017 LIMIT 5;"
+# result_set = ipdb.execute(sqlstr)
+# for r in result_set:
+#     print(r)
 
 ipdb.close()
