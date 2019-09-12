@@ -70,6 +70,8 @@ tc.update_meta(
 tc.clean_tables()
 merged_table = tc.join_all()
 
+merged_table.write_csv('data/data_2017.csv')
+
 ipdb = IpedsDatabase('localhost','5435','postgres','ipeds')
 ipdb.to_sql(merged_table,'data_2017')
 
