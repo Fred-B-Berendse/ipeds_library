@@ -81,6 +81,7 @@ class IpedsCollection(object):
             else:
                 merged_df = merged_df.merge(
                         table.df,
+                        how='outer',
                         on='unitid',
                         suffixes=('','_'+name))
         return IpedsTable(df=merged_df)
