@@ -7,7 +7,6 @@ class IpedsTable(object):
     def __init__(self, df=None, filepath=None):
         self.df = df
         self.columns = None
-        self.rows = None
 
         if isinstance(df,pd.DataFrame):
             self.df = df       
