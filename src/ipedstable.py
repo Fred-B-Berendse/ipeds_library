@@ -53,15 +53,16 @@ class IpedsTable(object):
         else:
             return column_list + self.get_imputation_columns(column_list)
 
-    def get_imputation_columns(self, column_list=None):
-        col_list = column_list if column_list else self.df.columns
-        imputation_columns = ['x'+c for c in col_list if 'x'+c in self.columns]
-        return list(set(imputation_columns))
+    def get_imputation_columns(self, column_list='all'):
+        if column_list == 'all':
+            return self.columns
+        else:
+            imputation_columns = ['x'+c for c in column_list if 'x'+c in self.columns]
+            return list(set(imputation_columns))
 
     def dropna(self, column_list, how='all'):
         if how.lower() not in ['all','any']:
             raise ValueError('Invalid method. Valid methods are "all" and "any".')
-            
         self.df.dropna(axis=0, how=how, subset=column_list, inplace=True)
         return
 
