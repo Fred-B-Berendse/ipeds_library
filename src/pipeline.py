@@ -12,8 +12,8 @@ exclude_list = [
 tc = IpedsCollection()
 
 # HD2017 table
-hd_keep = ['instnm','city','stabbr']
-
+hd_keep = ['unitid','instnm','city','stabbr','iclevel','control',
+           'hloffer','hbcu','tribal','locale','instsize','longitud','latitude']
 tc.update_meta(
         'hd2017',
         filepath='data/hd2017.csv',
@@ -21,7 +21,10 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # ADM2017 table
-adm_keep = []
+adm_keep = ['unitid','admcon1','admcon2','admcon3','admcon4','admcon5','admcon6',
+            'admcon7','admcon8','admcon9','applcn','applcnm','applcnw','admssn',
+            'enrlt','enrlft','enrltpt','satvr25','satvr75','satmt25','satmt75',
+            'acten25','acten75','actmt25','actmt75']
 tc.update_meta(
         'adm2017',
         filepath='data/adm2017.csv',
@@ -29,7 +32,8 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # C2017 tables
-c_keep = []
+c_keep = ['unitid','cipcode','awlevel','caiant','casiat','cbkaat','chispt','cnhpit',
+          'cwhitt','c2mort']
 tc.update_meta(
         'c2017_a',
         filepath='data/c2017_a.csv',
@@ -47,7 +51,8 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # GR2017 table
-gr_keep = []
+gr_keep = ['unitid','chrtstat','cohort','graiant','grasiat','grbkaat','grhispt','grnhpit',
+           'grwhitt','gr2mort']
 tc.update_meta(
         'gr2017',
         filepath='data/gr2017.csv',
@@ -55,7 +60,7 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # GR2017_PELL_SSL table
-pell_ssl_keep = []
+pell_ssl_keep = ['unitid','pgsrtype','pgadjct','pgcmtot','ssadjct','sscmtot','nradjct','nrcmtot']
 tc.update_meta(
         'gr2017_pell_ssl',
         filepath='data/gr2017_pell_ssl.csv',
