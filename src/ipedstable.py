@@ -49,7 +49,7 @@ class IpedsTable(object):
 
     def extended_column_list(self, column_list='all'):
         if column_list == 'all':
-            return self.df.columns
+            return self.columns
         else:
             return column_list + self.get_imputation_columns(column_list)
 
