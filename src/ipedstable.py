@@ -65,7 +65,7 @@ class IpedsTable(object):
         self.df.dropna(axis=0, how=how, subset=column_list, inplace=True)
         return
 
-    def purge_imputations(self, imputation_types, column_list=None, how='all'):
+    def purge_imputations(self, imputation_types, column_list='all', how='all'):
         if how.lower() not in ['all','any']:
             raise ValueError('Invalid method. Valid methods are "all" and "any".')
         
