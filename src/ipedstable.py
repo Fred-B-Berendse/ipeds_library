@@ -85,7 +85,6 @@ class IpedsTable(object):
         self.df.to_csv(
                 filepath, 
                 header=True, 
-                index_label='unitid', 
                 quoting=csv.QUOTE_NONNUMERIC
                 )
         return
