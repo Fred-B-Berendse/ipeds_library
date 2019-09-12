@@ -1,5 +1,6 @@
 from ipedstable import IpedsTable
 from copy import deepcopy
+import gc
 
 class IpedsCollection(object):
     ''' A collection of multiple IpedsTables '''
@@ -84,6 +85,7 @@ class IpedsCollection(object):
                         how='outer',
                         on='unitid',
                         suffixes=('','_'+name))
+            gc.collect()
         return IpedsTable(df=merged_df)
 
     def _validate_table_imports(self):
