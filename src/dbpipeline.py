@@ -1,18 +1,39 @@
+import psycopg2
+from psycopg2 import sql
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, ISOLATION_LEVEL_DEFAULT
+import getpass
+
 class DatabasePipeline(object):
     """Class for executing a series of SQL commands as a pipeline.
     """
-    def __init__(self, conn, ):
+    def __init__(self, database, user, host, port):
         """
         Parameters
         ----------
-        conn : SQL connection object
+        database - name of database
+        user - name of database user
+        host - host url or ip address
+        port - host port
+
         Returns
         -------
         None
         """
-        self.conn = conn
-        self.c = conn.cursor()
+        self.database = database
+        self.user = user
+        self.host = host
+        self.port = port
+
+        self.open_connection()
+        self.c = self.conn.cursor()
         self.steps = []
+
+    def open_connection(self):
+        self.conn = psycopg2.connect(
+                    database=self.database,
+                    user=self.user,
+                    host=self.host,
+                    port=self.port)
 
     def add_step(self, query, params=None):
         """Add a query to this pipeline.
@@ -37,5 +58,8 @@ class DatabasePipeline(object):
         self.conn.commit()
 
     def close(self):
+        self.c.close()
         self.conn.close()
+
+
 
