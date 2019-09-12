@@ -1,6 +1,5 @@
 from imputationtypes import ImputationTypes as it
 from ipedscollection import IpedsCollection
-#from dbpipeline import DatabasePipeline
 from ipedsdatabase import IpedsDatabase
 
 exclude_list = [
@@ -11,20 +10,56 @@ exclude_list = [
         ]
 
 tc = IpedsCollection()
+
+# HD2017 table
+hd_keep = ['instnm','city','stabbr']
+
 tc.update_meta(
         'hd2017',
         filepath='data/hd2017.csv',
-        keep_columns=['instnm','city','stabbr'],
+        keep_columns=hd_keep,
         exclude_imputations=exclude_list)
+
+# ADM2017 table
+adm_keep = []
 tc.update_meta(
         'adm2017',
         filepath='data/adm2017.csv',
-        keep_columns='all',
+        keep_columns=adm_keep,
         exclude_imputations=exclude_list)
+
+# C2017 tables
+c_keep = []
+tc.update_meta(
+        'c2017_a',
+        filepath='data/c2017_a.csv',
+        keep_columns=c_keep,
+        exclude_imputations=exclude_list)
+tc.update_meta(
+        'c2017_b',
+        filepath='data/c2017_b.csv',
+        keep_columns=c_keep,
+        exclude_imputations=exclude_list)
+tc.update_meta(
+        'c2017_c',
+        filepath='data/c2017_c.csv',
+        keep_columns=c_keep,
+        exclude_imputations=exclude_list)
+
+# GR2017 table
+gr_keep = []
 tc.update_meta(
         'gr2017',
         filepath='data/gr2017.csv',
-        keep_columns='all',
+        keep_columns=gr_keep,
+        exclude_imputations=exclude_list)
+
+# GR2017_PELL_SSL table
+pell_ssl_keep = []
+tc.update_meta(
+        'gr2017_pell_ssl',
+        filepath='data/gr2017_pell_ssl.csv',
+        keep_columns=pell_ssl_keep,
         exclude_imputations=exclude_list)
 
 tc.clean_tables()
@@ -39,21 +74,3 @@ for r in result_set:
     print(r)
 
 ipdb.close()
-
-
-# print("attempting connection")
-# dp = DatabasePipeline('ipeds','postgres','localhost','5435')
-# print("Created DB Pipeline Object")
-# dp.add_step("SELECT datname FROM pg_database where datistemplate=false;")
-# dp.execute()
-# print("Executed check")
-# print(f'Row count: {dp.c.rowcount}')
-# for row in dp.c:
-#     print(row)
-# dp.close()
-
-
-# sqlstr = "SELECT datname FROM pg_database where datistemplate=false;"
-# result_set = ipdb.engine.execute(sqlstr)
-# for r in result_set:
-#     print(r)
