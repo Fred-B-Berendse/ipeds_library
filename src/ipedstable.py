@@ -6,16 +6,13 @@ class IpedsTable(object):
     
     def __init__(self, df=None, filepath=None):
         self.df = df
-
         if isinstance(df,pd.DataFrame):
             self.df = df       
         elif filepath:
             self.df = pd.read_csv(filepath,encoding="cp1252")
         else:
             raise ValueError('IpedsTable requires either a Pandas DataFrame or a filename')
-
         self.update_columns()
-        # self.update_index()
         return
 
     def __len__(self):
@@ -32,16 +29,6 @@ class IpedsTable(object):
 
     def tail(self,n=5):
         return self.df.tail(n)
-
-    # def update_index(self):
-    #     if self.df.index.name != 'unitid':
-    #         try:
-    #             self.df.set_index('unitid', inplace=True)
-    #             self.columns = self.df.columns
-    #         except:
-    #             raise KeyError('Dataframe or file has no "unitid" column')
-    #     self.rows = self.df.index.values 
-    #     return
 
     def update_columns(self):
         self.df.columns = [c.strip().lower() for c in self.df.columns]
