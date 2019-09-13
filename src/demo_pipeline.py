@@ -23,7 +23,7 @@ tc.update_meta(
 # ADM2017 table
 adm_keep = ['unitid','admcon1','admcon2','admcon3','admcon4','admcon5','admcon6',
             'admcon7','admcon8','admcon9','applcn','applcnm','applcnw','admssn',
-            'enrlt','enrlft','enrltpt','satvr25','satvr75','satmt25','satmt75',
+            'enrlt','enrlft','enrlpt','satvr25','satvr75','satmt25','satmt75',
             'acten25','acten75','actmt25','actmt75']
 tc.update_meta(
         'adm2017',
@@ -39,16 +39,6 @@ tc.update_meta(
         filepath='data/c2017_a.csv',
         keep_columns=c_keep,
         exclude_imputations=exclude_list)
-tc.update_meta(
-        'c2017_b',
-        filepath='data/c2017_b.csv',
-        keep_columns=c_keep,
-        exclude_imputations=exclude_list)
-tc.update_meta(
-        'c2017_c',
-        filepath='data/c2017_c.csv',
-        keep_columns=c_keep,
-        exclude_imputations=exclude_list)
 
 # GR2017 table
 gr_keep = ['unitid','chrtstat','cohort','graiant','grasiat','grbkaat','grhispt','grnhpit',
@@ -60,7 +50,7 @@ tc.update_meta(
         exclude_imputations=exclude_list)
 
 # GR2017_PELL_SSL table
-pell_ssl_keep = ['unitid','pgsrtype','pgadjct','pgcmtot','ssadjct','sscmtot','nradjct','nrcmtot']
+pell_ssl_keep = ['unitid','psgrtype','pgadjct','pgcmtot','ssadjct','sscmtot','nradjct','nrcmtot']
 tc.update_meta(
         'gr2017_pell_ssl',
         filepath='data/gr2017_pell_ssl.csv',
@@ -69,9 +59,9 @@ tc.update_meta(
 
 tc.pipeline_all(keep_table=False)
 print("writing to file")
-tc.merged_table.write_csv('data/adm_comp_2017.csv')
+tc.merged_table.write_csv('data/ipeds_2017.csv')
 print("writing to database")
 ipdb = IpedsDatabase('localhost','5435','postgres','ipeds')
-ipdb.to_sql(tc.merged_table,'adm_comp_2017')
+ipdb.to_sql(tc.merged_table,'data_2017')
 print("DONE!")
 ipdb.close()
