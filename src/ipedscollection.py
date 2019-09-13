@@ -70,7 +70,7 @@ class IpedsCollection(object):
         if entry['keep_columns'] == 'all':
             entry['keep_columns'] = table.columns
         table.keep_columns(entry['keep_columns'])
-        table.purge_imputations(entry['exclude_imputations'])
+        table.purge_imputations(entry['exclude_imputations'],how='all')
         if dropna:
             table.dropna(entry['keep_columns'],how='any')
         return
