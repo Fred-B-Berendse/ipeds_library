@@ -75,7 +75,7 @@ class IpedsCollection(object):
             table.dropna(entry['keep_columns'],how='any')
         return
 
-    def merge_table(self,name,how='outer',keep_table=True):
+    def merge_table(self,name,how='inner',keep_table=True):
         print(f"Merging {name} with merged_table")
         self._validate_table_import(name)
         table = self.meta[name]['table']
