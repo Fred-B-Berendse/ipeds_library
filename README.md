@@ -199,7 +199,7 @@ Note that despite cleaning the data, null values reappear in the merged tables b
 Much of the time and energy dedicated to this capstone was put into producing a publicly usable library. Unfortunately this took longer than the time allotted for the project. Nonetheless, I was able to produce some exploratory figures and plots:
 
 ### 2017 graduation rates statistics
-![graduation rate statistics](img/graduation_rates.png)
+![graduation rate statistics](img/graduation-rates.png)
 
 ### 2017 cohort counts
 | Cohort | count | 
