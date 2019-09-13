@@ -154,7 +154,7 @@ In each of the tables, the following imputation values were purged. Rows which c
 ### Pipeline flow
 The following is the process used in the pipeline to create a single merged table for export to a file and database. Code for this pipeline can be found in [src/demo_pipeline.py](src/demo_pipeline.py). 
 
-[pipeline-flowchart.png](img/pipeline-flowchart.png)
+![pipeline-flowchart.png](img/pipeline-flowchart.png)
 
 
 ## Results and Challenges
@@ -190,24 +190,24 @@ Note that tables were note purged of null values that did not meet the exclude i
 
 Dropping these records would reduce the size of the data table by 20-40% and could bias the data against schools that have open enrollment policies. 
 
-Here's some proof that the merged table was successfully written to a Postgres database: 
+Unfortunately I was unable to write the entire table to the database due to memory issues on my laptop. However, it would be possible to write to the database in chunks to free up memory that is already written. Nonetheless, the Ipeds Library is able to successfully write data to a Postgres database:
 
-<INSERT SCREENSHOT HERE >
-
-
+![database snapshot](img/database-snapshot.png)
 
 Note that despite cleaning the data, null values reappear in the merged tables because not all schools have students in each reporting cohort. For example, IPEDS non-Title IV schools (i.e. those receiving federal student financial aid) would appear in the graduation rate table, but not the Pell Grant/Stafford Subsidized Loan table when an outer join is performed during the merge. 
 
 Much of the time and energy dedicated to this capstone was put into producing a publicly usable library. Unfortunately this took longer than the time allotted for the project. Nonetheless, I was able to produce some exploratory figures and plots:
 
 ### 2017 graduation rates statistics
-![.describe() output for graduation rates table](img/graduation_rates.png)
+![graduation rate statistics](img/graduation_rates.png)
 
-### 2017 graduation rates frequency counts
-![.value_counts() for categorical data in graduation rates table](img/value_counts.png)
-
-### 2017 graduation rates correlation heatmap
-![correlation heat map between discrete parameters using seaborn](img/corr_plot.png)
+### 2017 cohort counts
+| Cohort | count | 
+|--------|-------|
+| Bachelor's/ equiv +  other degree/certif-seeking 2011 subcohorts (4-yr institution) | 24823 |
+| Bachelor's or equiv 2011  subcohort (4-yr institution) | 46647 |
+| Other degree/certif-seeking 2011 subcohort (4-yr institution) | 18146 |
+| Degree/certif-seeking students 2014 cohort ( 2-yr institution) | 17725 |
 
 ## Conlcusion and Future Work
 The result of this project is a publicly available library of four python classes which can manipulate tablular data from the IPEDS data center. The classes allow their user to create a pipeline with a minimal knowledge of python. A pipeline was created on selected tables from the database to be merged into a single table. Memory constraints prevented a single table from being written; two separate tables were created instead.
