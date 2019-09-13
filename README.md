@@ -162,25 +162,39 @@ Below is the number of records in each table before and after cleaning with the 
 
 | table | Count before | Count after | Memory before | Memory after |
 |-------|--------------|-------------|---------------|--------------|
-| HD_2017  |     |     |    
-| ADM_2017 |     |     |
-| C_2017*  |     |     |
-| GR_2017  |     |     |
-| GR_PELL_SSL_2017 |    |    |
-**Completion rate data came from IPEDS in three separate tables. The counts shown are the total for the three files.*
+| HD_2017  | 7153  |  7153  |   3.9 MB  |   0.764 MB  |  
+| ADM_2017 | 2075  |  939   |    1.1 MB  |  0.186 MB  |
+| C_2017  | 308954    | 308943   | 150.9 MB | 25.9 MB |
+| GR_2017  | 54714  |  49981   |  27.6 MB | 4.2 MB | 
+| GR_PELL_SSL_2017 | 9116 | 9116 | 3.5 MB | 0.626 MB | 
 
-A sum of the counts would make one (like me) naively believe that these tables merged together would easily be handled by a single computer easily. Unfortunately, I overlooked the fact that many of the records in the outcomes (C_2017) and graduation rates (GR_2017) have more than one row per institution. Each of these tables has a separate row different cohorts of students attending the institution. For example, students seeking a bachelor's degree at a 4-year institution make up a different cohort than those seeking a certificate at a less-than=two-year institution. As a result of my oversight, I was unable to merge all of the data into a single dataset. 
+The merged table has the following characteristics: 
 
-My first attempt to fix was to delay importing a table into memory until the previous table was finished and freed from memory. Although this helped with performance, it unfortunately did not free enough memory to create a single merged table.  
-
-The pipeline was able to complete if either the graduation rates data or the outcomes data were left out of the pipeline. Therefore, two tables were successfully created and written to a PostgreSQL database and a CSV file:
-
-| merged table | number of rows | CSV filesize |
+| number of rows | Memory used | CSV filesize | 
 |--------------|----------------|--------------|
-| graduation rate before drop NaN |
-| graduation rate after drop NaN | 
-| student outcomes before drop NaN |
-| student outcomes after drop NaN |
+| 7065710   | 3.3 GB | 1941 MB | 
+
+An immediate question comes to mind: why is the merged table so much bigger than the sum of the initial tables? It turns out that both the outcomes table (C_2017) and the graduation rates table (GR_2017) contain multiple columns for each institution. 
+
+Note that tables were note purged of null values that did not meet the exclude imputations criteria. This decision resulted in the following null value counts: 
+
+| column(s) | number of null values |
+|-----------|-----------------------|
+| graduation counts by race/ethnicity ['graiant','grasiat', etc.] | 3574 |
+| 'admssn' (number of students admitted) | 1152 |
+| 'enrlt' (number of students enrolled) | 1306 |
+| 'enrlft' (students enrolled full time) | 3150 |
+| 'enrlpt' (students enrolled part time) | 756860 |
+| SAT score data ['satvr25','satvr75',etc.] | 1123023 |
+| ACT score data ['acten25','acten75',etc.] | 1372683 |
+
+Dropping these records would reduce the size of the data table by 20-40% and could bias the data against schools that have open enrollment policies. 
+
+Here's some proof that the merged table was successfully written to a Postgres database: 
+
+<INSERT SCREENSHOT HERE >
+
+
 
 Note that despite cleaning the data, null values reappear in the merged tables because not all schools have students in each reporting cohort. For example, IPEDS non-Title IV schools (i.e. those receiving federal student financial aid) would appear in the graduation rate table, but not the Pell Grant/Stafford Subsidized Loan table when an outer join is performed during the merge. 
 
