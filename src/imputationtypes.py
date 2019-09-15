@@ -1,7 +1,7 @@
 class ImputationTypes(object):
+    '''Imputation types for a PandasTable class
     '''
-    Imputation types for a PandasTable class
-    '''
+
     analyst_corrected = 'C'
     carry_forward_procedure = 'P'
     data_not_usable = 'H'
