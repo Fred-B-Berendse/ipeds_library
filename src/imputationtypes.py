@@ -1,7 +1,7 @@
 class ImputationTypes(object):
     '''
     Imputation types for a PandasTable class
-    '''  
+    '''
     analyst_corrected = 'C'
     carry_forward_procedure = 'P'
     data_not_usable = 'H'
@@ -15,16 +15,17 @@ class ImputationTypes(object):
     not_applicable = 'A'
     ratio_adjustment = 'K'
     reported = 'R'
-    
-    @classmethod
-    def type_to_code(cls,type):
-        return cls.__dict__.get(type,None)
 
     @classmethod
-    def code_to_type(cls,code):
+    def type_to_code(cls, type):
+        return cls.__dict__.get(type, None)
 
-        for k,v in ImputationTypes.__dict__.items():
-            if k.startswith('_'): continue
-            if v == code.upper(): 
+    @classmethod
+    def code_to_type(cls, code):
+
+        for k, v in ImputationTypes.__dict__.items():
+            if k.startswith('_'): 
+                continue
+            if v == code.upper():
                 return k
         return None

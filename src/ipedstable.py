@@ -1,35 +1,38 @@
 import pandas as pd
 import csv
 
+
 class IpedsTable(object):
-    ''' An object containing data and methods from a single IPEDS data table.'''
-    
+    ''' An object containing data and methods from a single IPEDS data table.
+    '''
+
     def __init__(self, df=None, filepath=None):
         self.df = df
         self.columns = None
 
-        if isinstance(df,pd.DataFrame):
-            self.df = df       
+        if isinstance(df, pd.DataFrame):
+            self.df = df
         elif filepath:
-            self.df = pd.read_csv(filepath,encoding="cp1252")
+            self.df = pd.read_csv(filepath, encoding="cp1252")
         else:
-            raise ValueError('IpedsTable requires either a Pandas DataFrame or a filename')
+            raise ValueError('IpedsTable requires a Pandas DataFrame' +
+                             'or a filename')
         self.update_columns()
         return
 
     def __len__(self):
         return len(self.df)
 
-    def info(self,**kwargs):
-        return self.df.info(**kwargs) 
-    
-    def describe(self,**kwargs):
+    def info(self, **kwargs):
+        return self.df.info(**kwargs)
+
+    def describe(self, **kwargs):
         return self.df.describe(**kwargs)
 
-    def head(self,n=5):
+    def head(self, n=5):
         return self.df.head(n)
 
-    def tail(self,n=5):
+    def tail(self, n=5):
         return self.df.tail(n)
 
     def update_columns(self):
@@ -54,37 +57,41 @@ class IpedsTable(object):
             return column_list + self.get_imputation_columns(column_list)
 
     def get_imputation_columns(self, column_list='all'):
-        col_list = self.columns if column_list=='all' else column_list
+        col_list = self.columns if column_list == 'all' else column_list
         imputation_columns = ['x'+c for c in col_list if 'x'+c in self.columns]
         return list(set(imputation_columns))
 
     def dropna(self, column_list, how='all'):
-        if how.lower() not in ['all','any']:
-            raise ValueError('Invalid method. Valid methods are "all" and "any".')
-            
+        if how.lower() not in ['all', 'any']:
+            raise ValueError('Invalid method. Valid methods are "all"' +
+                             'and "any".')
+
         self.df.dropna(axis=0, how=how, subset=column_list, inplace=True)
         return
 
-    def purge_imputations(self, imputation_types, column_list='all', how='all'):
-        if how.lower() not in ['all','any']:
-            raise ValueError('Invalid method. Valid methods are "all" and "any".')
-        
+    def purge_imputations(self,
+                          imputation_types,
+                          column_list='all',
+                          how='all'):
+        if how.lower() not in ['all', 'any']:
+            raise ValueError('Invalid method. Valid methods are "all"' +
+                             'and "any".')
+
         imputation_columns = self.get_imputation_columns(column_list)
-        data_slice = self.df.loc[:,imputation_columns]
-        notin_imputation_list = data_slice.applymap(lambda v: v not in imputation_types)
+        data_slice = self.df.loc[:, imputation_columns]
+        notin_imputation_list = data_slice.applymap(
+                lambda v: v not in imputation_types)
 
         if how.lower() == 'all':
             row_mask = notin_imputation_list.all(axis=1)
-        else: 
+        else:
             row_mask = notin_imputation_list.any(axis=1)
-        
+
         self.df = self.df[row_mask]
         return
 
-    def write_csv(self,filepath):
-        self.df.to_csv(
-                filepath, 
-                header=True, 
-                quoting=csv.QUOTE_NONNUMERIC
-                )
+    def write_csv(self, filepath):
+        self.df.to_csv(filepath,
+                       header=True,
+                       quoting=csv.QUOTE_NONNUMERIC)
         return
