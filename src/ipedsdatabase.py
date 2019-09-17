@@ -33,6 +33,7 @@ class IpedsDatabase(object):
         ResultSet = ResultProxy.fetchall()
         result = IpedsTable(data=ResultSet,columns=ResultSet[0].keys())
         result.df.drop(columns=['index'],inplace=True)
+        result.update_columns()
         return result
 
     def close(self):
