@@ -6,7 +6,7 @@ class IpedsTable(object):
     ''' An object containing data and methods from a single IPEDS data table.
     '''
 
-    def __init__(self, df=None, filepath=None):
+    def __init__(self, df=None, filepath=None, data=None, columns=None):
         self.df = df
         self.columns = None
 
@@ -14,9 +14,10 @@ class IpedsTable(object):
             self.df = df
         elif filepath:
             self.df = pd.read_csv(filepath, encoding="cp1252")
+        elif data:
+            self.df = pd.DataFrame(data, columns=columns)
         else:
-            raise ValueError('IpedsTable requires a Pandas DataFrame' +
-                             'or a filename')
+            self.df = pd.DataFrame([])
         self.update_columns()
         return
 
