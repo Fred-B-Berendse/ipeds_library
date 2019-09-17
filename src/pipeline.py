@@ -66,6 +66,7 @@ from ipedstable import IpedsTable
 # ipdb.close()
 
 ipdb = IpedsDatabase('localhost', '5435', 'postgres', 'ipeds')
-sql_str = 'SELECT * FROM data_2017 WHERE awlevelc = 5'
-foo = ipdb.from_sql_query(sql_str)
+#sql_str = 'SELECT * FROM data_2017 WHERE awlevelc = 5'
+#foo = ipdb.from_sql_query(sql_str)
+foo = ipdb.from_sql('data_2017')
 ipdb.close()
