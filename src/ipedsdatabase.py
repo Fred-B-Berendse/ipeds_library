@@ -18,7 +18,7 @@ class IpedsDatabase(object):
         return
 
     def from_sql(self,table_name):
-        # reads a SQL table into an Ipeds table
+        # reads a SQL table into an IpedsTable object
         # see pandas.read_sql
         print(f'reading {table_name} from database')
         metadata = db.MetaData()
