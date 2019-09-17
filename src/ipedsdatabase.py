@@ -1,5 +1,5 @@
 import psycopg2
-from sqlalchemy import create_engine
+import sqlalchemy as db 
 from ipedstable import IpedsTable
 
 
@@ -9,7 +9,7 @@ class IpedsDatabase(object):
 
     def __init__(self, host, port, user, database):
         self.hoststring = f'postgresql://{user}@{host}:{port}/{database}'
-        self.engine = create_engine(self.hoststring)
+        self.engine = db.create_engine(self.hoststring)
         return
 
     def to_sql(self, ipeds_table, db_table_name):
@@ -17,13 +17,18 @@ class IpedsDatabase(object):
         ipeds_table.df.to_sql(db_table_name, self.engine, if_exists='replace')
         return
 
-    def from_sql(self):
+    def from_sql(self,table_name):
         # reads a SQL table into an Ipeds table
         # see pandas.read_sql
-        pass
+        print(f'reading {table_name} from database')
+        metadata = db.MetaData()
+        table = db.Table(table_name, metadata, autoload=True, autoload_with=self.engine)
+        query = db.select([table])
+        return self.from_sql_query(query)
 
     def from_sql_query(self,sql_str):
         # reads a SQL query into an IpedsTable
+        # https://towardsdatascience.com/sqlalchemy-python-tutorial-79a577141a91
         ResultProxy = self.engine.execute(sql_str)
         ResultSet = ResultProxy.fetchall()
         result = IpedsTable(data=ResultSet,columns=ResultSet[0].keys())
