@@ -1,5 +1,6 @@
 import psycopg2
 from sqlalchemy import create_engine
+from ipedstable import IpedsTable
 
 
 class IpedsDatabase(object):
@@ -21,8 +22,13 @@ class IpedsDatabase(object):
         # see pandas.read_sql
         pass
 
-    def execute(self, sqlstr):
-        return self.engine.execute(sqlstr)
+    def from_sql_query(self,sql_str):
+        # reads a SQL query into an IpedsTable
+        ResultProxy = self.engine.execute(sql_str)
+        ResultSet = ResultProxy.fetchall()
+        result = IpedsTable(data=ResultSet,columns=ResultSet[0].keys())
+        result.df.drop(columns=['index'],inplace=True)
+        return result
 
     def close(self):
         self.engine.dispose()
