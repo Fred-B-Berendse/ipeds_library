@@ -41,6 +41,11 @@ class IpedsTable(object):
         self.columns = self.df.columns
         return
 
+    def rename_columns(self, name_dict):
+        self.df.rename(mapper=name_dict, axis=1, inplace=True)
+        self.columns = self.df.columns
+        return
+
     def keep_columns(self, column_list):
         columns_to_drop = (self.columns).difference(column_list).values
         self.drop_columns(columns_to_drop)
@@ -95,4 +100,31 @@ class IpedsTable(object):
         self.df.to_csv(filepath,
                        header=True,
                        quoting=csv.QUOTE_NONNUMERIC)
+        return
+
+    def make_multicols(self, col_levels):
+        self.df.set_index(col_levels, inplace=True)
+        self.df = self.df.unstack()
+        self.df = self.df.swaplevel(i=0, j=1, axis=1)
+        self.df.sort_index(level=0, axis=1, inplace=True)
+        self.df.reset_index(inplace=True)
+        self.columns = self.df.columns
+        return        
+        
+    def filter_multicols(self, colval_dict):
+        col_mask = self.df.columns.levels[0] == 'unitid'
+        for col, vals in colval_dict.items():
+            level = self.df.columns.names.index(col)
+            col_mask = col_mask | [c in vals for c in self.df.columns.levels[level]]
+        cols = self.df.columns.levels[0][col_mask]
+        self.df = self.df[cols]
+        self.columns = self.df.columns
+        return
+    
+    def filter_values(self, colval_dict):
+        for col, vals in colval_dict.items():
+            if not isinstance(vals, (list, tuple)):
+                vals = list(vals)
+            mask = [c in vals for c in self.df[col]]
+            self.df = self.df[mask]
         return
