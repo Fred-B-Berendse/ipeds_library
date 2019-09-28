@@ -7,8 +7,8 @@ class IpedsDatabase(object):
     '''Class for interactions between IpedsTables and databases
     '''
 
-    def __init__(self, host, port, user, database):
-        self.hoststring = f'postgresql://{user}@{host}:{port}/{database}'
+    def __init__(self, host, port, user, password, database):
+        self.hoststring = f'postgresql://{user}:{password}@{host}:{port}/{database}'
         self.engine = db.create_engine(self.hoststring)
         return
 
