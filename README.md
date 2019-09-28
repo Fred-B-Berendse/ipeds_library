@@ -102,8 +102,8 @@ Below is the list of tables and columns selected for inclusion in my dataset. Ea
     | Column Name | Description |
     |-------------|-------------|
     | UNITID | unique institution ID |
-    | CIPCODE | code identifying degree type awarded |
-    | AWLEVEL | award level code |
+    | AWLEVELC | award level code |
+    | CSTOTLT | All races total |
     | CAIANT | American Indian/Alaska Native total |
     | CASIAT | Asian total |
     | CBKAAT | Black or African American total |
