@@ -17,6 +17,8 @@ class IpedsCollection(object):
             table=None,
             filepath=None,
             keep_columns=None,
+            col_levels = None,
+            filter_values = None,
             exclude_imputations=None):
 
         if name not in self.meta.keys():
@@ -37,6 +39,12 @@ class IpedsCollection(object):
                     and ('unitid' not in keep_columns):
                 keep_columns.append('unitid')
             entry.update({'keep_columns': keep_columns})
+
+        if col_levels:
+            entry.update({'col_levels': col_levels})
+
+        if filter_values:
+            entry.update({'filter_values': filter_values})
 
         if exclude_imputations:
             entry.update({'exclude_imputations': exclude_imputations})
@@ -59,6 +67,24 @@ class IpedsCollection(object):
             del entry['filepath']
         return
 
+    def make_multicols_all(self):
+        for name in self.meta.keys():
+            print(f"making multicols for {name}")
+            self.make_multicols(name)
+        return
+       
+    def make_multicols(self, name):
+        entry = self.meta[name]
+        self._validate_table_import(name)
+        if 'col_levels' in entry.keys():
+            table = entry['table']
+            col_levels = copy(entry['col_levels'])
+            if 'unitid' in entry['col_levels']:
+                col_levels.remove('unitid')
+            col_levels.insert(0,'unitid')
+            table.make_multicols(col_levels)
+        return
+ 
     def clean_all(self, dropna=False):
         for name in self.meta.keys():
             self.clean_table(name, dropna=dropna)
@@ -77,12 +103,26 @@ class IpedsCollection(object):
             table.dropna(entry['keep_columns'], how='any')
         return
 
+    def filter_all(self):
+        for name in self.meta.keys():
+            self.filter_values(name)
+        return
+
+    def filter_values(self, name):
+        print(f"filtering values in table {name}")
+        self._validate_table_import(name)
+        entry = self.meta[name]
+        if 'filter_values' in entry.keys():
+            table = entry['table']
+            table.filter_values(entry['filter_values'])
+        return
+
     def merge_table(self, name, how='inner', keep_table=True):
         print(f"Merging {name} with merged_table")
         self._validate_table_import(name)
-        table = self.meta[name]['table']
+        table = deepcopy(self.meta[name]['table'])
         if len(self.merged_table) == 0:
-            self.merged_table.df = table.df.copy()
+            self.merged_table.df = table.df
         else:
             self.merged_table.df = self.merged_table.df.merge(
                                 table.df,
@@ -100,7 +140,9 @@ class IpedsCollection(object):
 
     def merge_all(self, how='inner', keep_table=True):
         for name in self.meta.keys():
-            self.merge_table(name, how=how, keep_table=keep_table)
+            self.merge_table(name, 
+                             how=how,  
+                             keep_table=keep_table)
         return
 
     def pipeline_all(self, dropna=False, how='inner', keep_table=True):
@@ -108,5 +150,7 @@ class IpedsCollection(object):
         for name in names:
             self.import_table(name)
             self.clean_table(name, dropna=dropna)
+            self.filter_values(name)
+            self.make_multicols(name)
             self.merge_table(name, how=how, keep_table=keep_table)
         return
