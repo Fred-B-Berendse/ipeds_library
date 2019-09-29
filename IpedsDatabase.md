@@ -17,7 +17,7 @@ A class for interactions between IpedsTables and databases. This class utilizes 
 ### from_sql(self) (not yet implemented)
     Reads a SQL table and returns an IpedsTable object
 
-### execute(self,sqlstr)
+### from_sql_query(self,sql_str)
     Executes a SQL query on the database. Returns a SQLAlchemy cursor for containing the results of the query.
 
 ### close(self)
