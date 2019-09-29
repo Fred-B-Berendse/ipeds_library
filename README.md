@@ -130,11 +130,11 @@ Below is the list of tables and columns selected for inclusion in my dataset. Ea
     | UNITID | unique institution ID |
     | PSGRTYPE | subgroup: 4-yr degree+cert, 4-yr degree, 4-yr cert, <=2-yr degree+cert |
     | PGADJCT | Pell Grant recipients - count adjusted for exclusions |
-    | PGCMTOT | Pell Grant recipients - completed within 150% time | 
+    | PGCMBAC | Pell Grant bachelor's degree recipients - completed within 150% time | 
     | SSADJCT | Subsidized Stafford Loan (w/o Pell Grant) recipients - count adjusted for exclusions |
-    | SSCMTOT |  Subsidized Stafford Loan (w/o Pell Grant) recipients - completed within 150% time | 
-    | NRADJCT | Non-recipients - count adjusted for exclusions |
-    | NRCMTOT | Non-recipients - completed within 150% time |
+    | SSCMBAC |  Subsidized Stafford Loan (w/o Pell Grant) bachelor's degree recipients - completed within 150% time | 
+    | NRADJCT | Non-aid-recipients - count adjusted for exclusions |
+    | NRCMBAC | Non-aid-recipients bachelor's degree recipients - completed within 150% time |
 
 
 ### Imputation Values Purged
@@ -163,13 +163,13 @@ This pipeline performs the following steps:
 1) Creates an instance of the IpedsCollection class.
 2) Fills the metadata of the collection with the following information for each table:
 
-| Table | Columns to Keep | Multicolumn Levels | Filter Values (Bachelor's Degrees only) | Imputation Values |
-|-------|-----------------|--------------------|---------------|-------------------|
-| HD_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
-| ADM_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
-| C_2017 | (see **Tables Included**) | none | AWLEVELC=5 | (see **Imputation Values Purged**) |
-| GR_2017 | (see **Tables Included**) | CHRTSTAT | COHORT=2; CHRTSTAT=12,16,17,18,19,20,31,32 | (see **Imputation Values Purged**) |
-| GR_PELL_SSL_2017 | (see **Tables Included**) | none | PSGRTYPE=2 | (see **Imputation Values Purged**) | 
+    | Table | Columns to Keep | Multicolumn Levels | Filter Values (Bachelor's Degrees only) | Imputation Values |
+    |-------|-----------------|--------------------|---------------|-------------------|
+    | HD_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
+    | ADM_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
+    | C_2017 | (see **Tables Included**) | none | AWLEVELC=5 | (see **Imputation Values Purged**) |
+    | GR_2017 | (see **Tables Included**) | CHRTSTAT | COHORT=2; CHRTSTAT=12,16,17,18,19,20,31,32 | (see **Imputation Values Purged**) |
+    | GR_PELL_SSL_2017 | (see **Tables Included**) | none | PSGRTYPE=2 | (see **Imputation Values Purged**) | 
 
 3) Imports all of the tables into the IpedsCollection.
 4) Keeps only the columns of interest. 
