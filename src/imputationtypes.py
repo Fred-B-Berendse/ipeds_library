@@ -1,5 +1,5 @@
 class ImputationTypes(object):
-    '''Imputation types for a PandasTable class
+    '''Imputation types for an IpedsTable class
     '''
 
     analyst_corrected = 'C'
