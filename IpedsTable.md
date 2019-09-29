@@ -22,6 +22,8 @@ A table of data from the IPEDS database or a merge of multiple IPEDS database ta
     Returns the last n rows of the Dataframe
 ### update_columns(self)
     Updates `self.df.columns` and `self.columns` with trimmed and lowercase column names
+### rename_columns(self, name_dict)
+    Renames columns using a name dictionary. Keys of the name dictionary contain old column names. Values of the dictionary are the new column names.
 ### keep_columns(self, column_list)
     Drops from the DataFrame columns in the list `column_list`
 ### drop_columns(self, column_list)
@@ -36,3 +38,10 @@ A table of data from the IPEDS database or a merge of multiple IPEDS database ta
     Drops rows where any or all of the columns in `column_list` contain any of the values in the list `imputation_types`. If `column_list` is `all`, then all columns in the DataFrame are used.
 ### write_csv(self, filepath)
     Writes the DataFrame to a comma-delimited csv file.
+### make_multicols(self, col_levels)
+    Converts the columns in col_levels to a level in the column multiindex. One can use this to convert a many-to-one table to a one-to-one table.
+### filter_multicols(self,colval_dict)
+    Filters the table's DataFrame to contain only those columns specified in the column-value dictionary. Keys in this dictionary are level names. Values in this dictionary are values within that level.
+### filter_values(self,colval_dict)
+    Filters the table's DataFrame to contain only rows whose values are specified in the colval dictionary. Keys in this dictionary are column names. Values of the dictionary are values in that column to be kept. 
+
