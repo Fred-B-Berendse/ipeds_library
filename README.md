@@ -8,15 +8,11 @@ Institutions of higher education stand as beacons of progressive thought and soc
 
 The motivating goal of this capstone project is to answer essential questions about how equitable our higher education system is in its current state: 
 
-1. Is there a significant difference in post-secondary graduation rates,
-outcomes, and degrees awarded for Pell Grant/Subsidized Stafford Loan
-(SSL) recipients and/or minority students compared to students outside
-these groups?
+1. Is there a significant difference in post-secondary graduation rates, outcomes, and degrees awarded for Pell Grant/Subsidized Stafford Loan (SSL) recipients and/or minority students compared to students outside these groups?
 
 2. Is there a state-by-state variance in these metrics?
 
-3. Does this disparity persist when one accounts for variable levels in
-college preparedness between these groups?
+3. Does this disparity persist when one accounts for variable levels in college preparedness between these groups?
 
 Before one can answer these questions, it is necessary to obtain data usable for answering these questions. The primary goal of this capstone is to create a publicly usable dataset with which to answer these questions. The secondary goal was to create exploratory graphs and tables which would guide futher analysis.
 
@@ -97,7 +93,7 @@ Below is the list of tables and columns selected for inclusion in my dataset. Ea
     | ACTMT25 | ACT math 25th percentile |
     | ACTMT75 | ACT math 75th percentile|
 
-* **C_2017** contains number of awards by type of program, level, first/second major and race/ethnicity and gender. Data cover degrees awarded between July 1, 2016 to June 30, 2017. Each record contains the total awards, awards for men and women, and total awardds for men and women across nine racial/ethnicity categories.
+* **C_2017** contains number of awards by level, race/ethnicity and gender. Data cover degrees awarded between July 1, 2016 to June 30, 2017. Each record contains the total awards for men and women across nine racial/ethnicity categories.
     
     | Column Name | Description |
     |-------------|-------------|
@@ -112,7 +108,7 @@ Below is the list of tables and columns selected for inclusion in my dataset. Ea
     | CWHITT | White total |
     | C2MORT | Two or more races total |
 
-* **GR_2017** contains graduation rates for the cohort of full-time, first-degree/certificate-seeking stidemts within 100%, 150%, 200% normal time. Cohorts are broken down by race/ethnicity and gender.
+* **GR_2017** contains graduation rates for the cohort of full-time, first-degree/certificate-seeking stidemts within 100% and 150% normal time. Cohorts are broken down by race/ethnicity and gender.
     
     | Column Name | Description |
     |-------------|-------------|
@@ -152,66 +148,105 @@ In each of the tables, the following imputation values were purged. Rows which c
 | not_applicable | A |
 
 ### Pipeline flow
-The following is the process used in the pipeline to create a single merged table for export to a file and database. Code for this pipeline can be found in [src/demo_pipeline.py](src/demo_pipeline.py). 
+The pipeline was originally designed to simply import tables, purge each table of imputation values, merge it into a single IpedsTable, and write it to a csv file and/or database. However, this simple pipeline quickly caused the table to balloon in memory due to several tables having more than one entry per institution. A many-to-one mapping of multiple tables quickly results in dataset that duplicates many entries. 
 
-![pipeline-flowchart.png](img/pipeline-flowchart.png)
+Working around the memory issue involved two key steps: 
 
+* Creating an IpedsCollection method `make_multicols` which converts discrete column values to column levels in the IpedsTable. This flattens a many-to-one table to a one-to-one table. 
+* Utilizing Amazon Web Services. A PostgreSQL database was created through Amazon's RDS service as well as an EC2 web service (32 GB RAM) that runs the pipeline in a Docker container holding all the source code and data.
 
-## Results and Challenges
-Below is the number of records in each table before and after cleaning with the pipeline:
+It was also decided to limit the scope of this exploratory data analysis to only completion of bachelor's degrees. To accomplish this, an IpedsCollection method 
+`filter_values` was created to filter only those columns relevant to only bachelor's degrees. 
 
-| table | Count before | Count after | Memory before | Memory after |
-|-------|--------------|-------------|---------------|--------------|
-| HD_2017  | 7153  |  7153  |   3.9 MB  |   0.764 MB  |  
-| ADM_2017 | 2075  |  939   |    1.1 MB  |  0.186 MB  |
-| C_2017  | 308954    | 308943   | 150.9 MB | 25.9 MB |
-| GR_2017  | 54714  |  49981   |  27.6 MB | 4.2 MB | 
-| GR_PELL_SSL_2017 | 9116 | 9116 | 3.5 MB | 0.626 MB | 
+This pipeline performs the following steps:
+    
+1) Creates an instance of the IpedsCollection class.
+2) Fills the metadata of the collection with the following information for each table:
 
-The merged table has the following characteristics: 
+| Table | Columns to Keep | Multicolumn Levels | Filter Values (Bachelor's Degrees only) | Imputation Values |
+|-------|-----------------|--------------------|---------------|-------------------|
+| HD_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
+| ADM_2017 | (see **Tables Included**) | none | none | (see **Imputation Values Purged**) |
+| C_2017 | (see **Tables Included**) | none | AWLEVELC=5 | (see **Imputation Values Purged**) |
+| GR_2017 | (see **Tables Included**) | CHRTSTAT | COHORT=2; CHRTSTAT=12,16,17,18,19,20,31,32 | (see **Imputation Values Purged**) |
+| GR_PELL_SSL_2017 | (see **Tables Included**) | none | PSGRTYPE=2 | (see **Imputation Values Purged**) | 
 
-| number of rows | Memory used | CSV filesize | 
-|--------------|----------------|--------------|
-| 7065710   | 3.3 GB | 1941 MB | 
+3) Imports all of the tables into the IpedsCollection.
+4) Keeps only the columns of interest. 
+5) Purges excluded imputation values.
+6) Filters values to limit the scope to data involving only bachelor's degrees.
+7) Uses multicolumns to convert tables to a format of one institution per row.
+8) Computes completion percentages by race/ethnicity in the table C_2017.
+9) Imputes a value of 0 for any missing graduation rate data (table GR_2017).
+10) Performs two sum checks on graduation rate data:
+    a) Checks that the adjusted cohort status total (CHRTSTAT=12) equals the sum of:
+        i) the completions in 150% time (CHRTSTAT=16)
+        ii) transfers (CHRTSTAT=20)
+        iii) non-completions still enrolled (CHRTSTAT=31)
+        iv) non-completions no longer enrolled (CHRTSTAT=32).
+    b) Checks that the number of completions in 150% time (CHRTSTAT=16) equals the sum of: 
+        i) completions within 4 years (CHRTSTAT=17)
+        ii) completions in 5 years (CHRTSTAT=18)
+        iii) completions in 6 years (CHRTSTAT=19)
+11) Filters out any rows that do not meet either of the two sum checks.
+12) Computes completion percentages by Pell Grant/Subsidized Stafford Loan recipient status in the table GR_PELL_SSL_2017.
+13) Merges the rows from all tables into a single IpedsTable.
+14) Writes the merged data to a CSV file and to a PostgreSQL database.
 
-An immediate question comes to mind: why is the merged table so much bigger than the sum of the initial tables? It turns out that both the outcomes table (C_2017) and the graduation rates table (GR_2017) contain multiple columns for each institution. 
+The source code for this pipeline can be found in [src/demo_pipeline.py](src/demo_pipeline.py). 
 
-Note that tables were note purged of null values that did not meet the exclude imputations criteria. This decision resulted in the following null value counts: 
+## Results
+The following is the total number of non-null rows for each table after the pipeline process:
 
-| column(s) | number of null values |
-|-----------|-----------------------|
-| graduation counts by race/ethnicity ['graiant','grasiat', etc.] | 3574 |
-| 'admssn' (number of students admitted) | 1152 |
-| 'enrlt' (number of students enrolled) | 1306 |
-| 'enrlft' (students enrolled full time) | 3150 |
-| 'enrlpt' (students enrolled part time) | 756860 |
-| SAT score data ['satvr25','satvr75',etc.] | 1123023 |
-| ACT score data ['acten25','acten75',etc.] | 1372683 |
+| Table | Non-null Rows |
+|-------|---------------|
+| HD_2017 | 7153 | 
+| ADM_2017 | 939 |
+| C_2017 | 2549 |
+| GR_2017 | 1608 |
+| GR_PELL_SSL_2017 | 1811 |
 
-Dropping these records would reduce the size of the data table by 20-40% and could bias the data against schools that have open enrollment policies. 
+### Admissions
+There are no admissions data disaggregated by race in the IPEDS data system. There are 46 Historically Black Colleges and Universities in the admissions table. Below is a comparison of SAT/ACT percentiles of HBCUs compared to non-HBCUs. In all of these measures, the percentiles for HBCUs are lower than their non-HBCU counterparts. 
 
-Unfortunately I was unable to write the entire table to the database due to memory issues on my laptop. However, it would be possible to write to the database in chunks to free up memory that is already written. Nonetheless, the Ipeds Library is able to successfully write data to a Postgres database:
+![hbcu_vs_nonhbcu_admissions.png](img/hbcu_vs_nonhbcu_admissions.png)
 
-![database snapshot](img/database-snapshot.png)
+There was only one tribal college in the admissions database. It shows a similar trend in lower SAT/ACT percentiles compared to non-tribal schools.
 
-Note that despite cleaning the data, null values reappear in the merged tables because not all schools have students in each reporting cohort. For example, IPEDS non-Title IV schools (i.e. those receiving federal student financial aid) would appear in the graduation rate table, but not the Pell Grant/Stafford Subsidized Loan table when an outer join is performed during the merge. 
+An interesting trend can be observed when looking at percentiles for universities and colleges across different locales. As shown below, city locations tend to have higher SAT/ACT percentiles than rural locations. One percentile that appears to buck this trend is 25th percentiles for math which appear to be more consistent among locales.
 
-Much of the time and energy dedicated to this capstone was put into producing a publicly usable library. Unfortunately this took longer than the time allotted for the project. Nonetheless, I was able to produce some exploratory figures and plots:
+![admissions_locale.png](img/admissions_locale.png)
 
-### 2017 graduation rates statistics
-![graduation rate statistics](img/graduation-rates.png)
+These trends would work against the accessability of colleges for students of color. Black and hispanic applicants are proportionally concentrated greater in urban centers. ([Pew Research Center Social & Demographic Trends](https://www.pewsocialtrends.org/2018/05/22/demographic-and-economic-trends-in-urban-suburban-and-rural-communities/)) Colleges and universities more accessible for these students tend to have higher admissions criteria.
 
-### 2017 cohort counts
-| Cohort | count | 
-|--------|-------|
-| Bachelor's/ equiv +  other degree/certif-seeking 2011 subcohorts (4-yr institution) | 24823 |
-| Bachelor's or equiv 2011  subcohort (4-yr institution) | 46647 |
-| Other degree/certif-seeking 2011 subcohort (4-yr institution) | 18146 |
-| Degree/certif-seeking students 2014 cohort ( 2-yr institution) | 17725 |
+There is also a general trend that percentiles increase with the size of the institution. 
+
+![admissions_size.png](img/admissions_size.png)
+
+### Completion Rates
+
+In the completions rates table (C_2017), there are 1,955,857 bachelor's degrees completed within 150% of normal time. However, only 1,790,969 of those have been disaggregated by race. The racial breakdown of all bachelor's degree completions are shown in the graph below. The US Census Bureau's 2018 estimate of US race/ethnicity demographics ([US Census Bureau Data](https://www.census.gov/quickfacts/fact/table/US/PST045218)) is shown for comparison.
+
+![completion_overall.png](img/completion_overall.png)
+
+Bachelor's degree completions by the 2011 cohort of students has a slight overrepresentation by whites, hispanics, and asians. The percentage of people of two or more races receiving a bachelor's degree within 6 years is more than double the US census estimate of that demographic. Blacks, american indians, and pacific islanders are underrepresented in those who completed a bachelor's degree.
+
+The race/ethnicity breakdown of each institution's degree completions was calculated. The graph below shows that most institutions have completion breakdowns heavily represented by whites - more than the 60% shown on the completion rate breakdown nationwide. One possible interpretation is that a small fraction of institutions  nationwide (*e.g.* HBCUs) produce the majority of the nation's degree completions by persons of color.
+
+![institutions_completion.png](img/institutions_completion.png)
+
+## Completion Rates for Pell/Subsidized Stafford Loan Students
+The distribution of bachelor's degree completions within 150% of normal time for 1811 institutions nationwide is shown below. Non-receipients of federal need-based student aid tend to have higher completion rates than those who receive Subsidized Stafford Loans. The difference in completion rates increases for Pell Grant recipients. 
+
+![pgssl_completion_distribution.png](img/pgssl_completion_distribution.png)
+
+On a positive note, there is a correlation between completion percentage for recipients and non-recipients at a given instiutution. Generally speaking, institutions that have in place supports to help non-recipients complete their degrees also give greater support to recipients of need-based aid. So why do Pell Grant and Subsidized Stafford Loan recipients lag in completion rate nationwide? One possible explanation is that need-based students tend to attend instiutions that do not do as good a job getting students to complete their degrees.
+
+![pgssl_completion_scatter.png](img/pgssl_completion_scatter.png)
 
 ## Conlcusion and Future Work
-The result of this project is a publicly available library of four python classes which can manipulate tablular data from the IPEDS data center. The classes allow their user to create a pipeline with a minimal knowledge of python. A pipeline was created on selected tables from the database to be merged into a single table. Memory constraints prevented a single table from being written; two separate tables were created instead.
+The result of this project is a publicly available library of four python classes which can manipulate tablular data from the IPEDS data center. The classes allow their user to create a pipeline with a minimal knowledge of python. A pipeline was created on selected tables from the database to be merged into a single table. This table was successfully written to a CSV file and a PostgreSQL database hosted on Amazon Web Services.
 
-The next improvement to the library I would make is to include methods in the IpedsTable library that would allow a user to create a class that produces exploratory graphs and tables without the need know how to code in python. 
+The next improvement to the library I would make is to include methods in the IpedsTable library that would allow a user to create a class instance that produces exploratory graphs and tables without the need know how to code in python. 
 
 To further this end of separating the user from needing to know python, it would be beneficial for the pipeline python code to parse arguments at runtime. These arguments would point to a pipeline setup file which would require only a formatted text file. 
