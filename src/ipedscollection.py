@@ -146,11 +146,9 @@ class IpedsCollection(object):
         return
 
     def pipeline_all(self, dropna=False, how='inner', keep_table=True):
-        names = list(self.meta.keys())
-        for name in names:
-            self.import_table(name)
-            self.clean_table(name, dropna=dropna)
-            self.filter_values(name)
-            self.make_multicols(name)
-            self.merge_table(name, how=how, keep_table=keep_table)
+        self.import_all()
+        self.clean_all()
+        self.filter_all()
+        self.make_multicols_all()
+        self.merge_all(how=how, keep_table=keep_table)
         return
