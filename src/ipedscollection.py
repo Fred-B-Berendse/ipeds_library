@@ -117,6 +117,19 @@ class IpedsCollection(object):
             table.filter_values(entry['filter_values'])
         return
 
+    def map_values_all(self):
+        for name in self.meta.keys():
+            self.map_values(name)
+        return
+
+    def map_values(self, name):
+        print(f"mapping values in table {name}")
+        entry = self.meta[name]
+        if 'map_values' in entry.keys():
+            table = entry['table']
+            table.map_values(entry['map_values'])
+        return
+
     def merge_table(self, name, how='inner', keep_table=True):
         print(f"Merging {name} with merged_table")
         self._validate_table_import(name)
