@@ -128,3 +128,10 @@ class IpedsTable(object):
             mask = [c in vals for c in self.df[col]]
             self.df = self.df[mask]
         return
+
+    def make_pct_column(self, count_col, total_col, delcnt=False):
+        pct_col = count_col + '_pct'
+        self.df[pct_col] = self.df[count_col]/self.df[total_col]*100
+        if delcnt: 
+            self.df.drop(count_col, axis=1)
+        return
