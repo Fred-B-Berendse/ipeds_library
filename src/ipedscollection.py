@@ -17,6 +17,7 @@ class IpedsCollection(object):
             table=None,
             filepath=None,
             keep_columns=None,
+            map_values=None,
             col_levels = None,
             filter_values = None,
             exclude_imputations=None):
@@ -45,6 +46,9 @@ class IpedsCollection(object):
 
         if filter_values:
             entry.update({'filter_values': filter_values})
+
+        if map_values:
+            entry.update({'map_values': map_values})
 
         if exclude_imputations:
             entry.update({'exclude_imputations': exclude_imputations})
@@ -161,6 +165,7 @@ class IpedsCollection(object):
     def pipeline_all(self, dropna=False, how='inner', keep_table=True):
         self.import_all()
         self.clean_all()
+        self.map_values_all()
         self.filter_all()
         self.make_multicols_all()
         self.merge_all(how=how, keep_table=keep_table)
