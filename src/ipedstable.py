@@ -135,3 +135,8 @@ class IpedsTable(object):
         if replace: 
             self.df.drop(count_col, axis=1)
         return
+
+    def make_pct_columns(self, count_cols, total_cols, replace=False):
+        for part, total in zip(count_cols, total_cols):
+            self.make_pct_column(part, total, replace=replace)
+        return
