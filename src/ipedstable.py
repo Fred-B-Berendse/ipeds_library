@@ -133,7 +133,7 @@ class IpedsTable(object):
         pct_col = count_col + '_pct'
         self.df[pct_col] = self.df[count_col]/self.df[total_col]*100
         if replace: 
-            self.df.drop(count_col, axis=1)
+            self.df.drop(count_col, axis=1, inplace=True)
         if dropna:
             self.df.dropna(axis=0, how='any')
         return
@@ -145,7 +145,7 @@ class IpedsTable(object):
     
     def map_values(self, map_dict):
         for col, val_map in map_dict.items():
-            for old_val, new_val in val_map:
+            for old_val, new_val in val_map.items():
                 mask = self.df[col] == old_val
                 self.df.loc[mask, col] = new_val
         return
