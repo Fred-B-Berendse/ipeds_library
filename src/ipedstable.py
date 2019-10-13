@@ -129,14 +129,16 @@ class IpedsTable(object):
             self.df = self.df[mask]
         return
 
-    def make_pct_column(self, count_col, total_col, replace=False):
+    def make_pct_column(self, count_col, total_col, replace=False, dropna=False):
         pct_col = count_col + '_pct'
         self.df[pct_col] = self.df[count_col]/self.df[total_col]*100
         if replace: 
             self.df.drop(count_col, axis=1)
+        if dropna:
+            self.df.dropna(axis=0, how='any')
         return
 
-    def make_pct_columns(self, count_cols, total_cols, replace=False):
+    def make_pct_columns(self, count_cols, total_cols, replace=False, dropna=False):
         for part, total in zip(count_cols, total_cols):
-            self.make_pct_column(part, total, replace=replace)
+            self.make_pct_column(part, total, replace=replace, dropna=dropna)
         return
