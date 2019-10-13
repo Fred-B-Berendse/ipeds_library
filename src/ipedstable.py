@@ -142,3 +142,10 @@ class IpedsTable(object):
         for part, total in zip(count_cols, total_cols):
             self.make_pct_column(part, total, replace=replace, dropna=dropna)
         return
+    
+    def map_values(self, map_dict):
+        for col, val_map in map_dict.items():
+            for old_val, new_val in val_map:
+                mask = self.df[col] == old_val
+                self.df.loc[mask, col] = new_val
+        return
