@@ -124,7 +124,7 @@ class IpedsTable(object):
     def filter_values(self, colval_dict):
         for col, vals in colval_dict.items():
             if not isinstance(vals, (list, tuple)):
-                vals = list(vals)
+                vals = [vals]
             mask = [c in vals for c in self.df[col]]
             self.df = self.df[mask]
         return
