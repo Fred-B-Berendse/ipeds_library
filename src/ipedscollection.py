@@ -58,12 +58,22 @@ class IpedsCollection(object):
         del self.meta[name]
         return
 
+    def get_row_counts(self):
+        counts = dict([])
+        for k in self.meta.keys():
+            df = self.meta[k]['table'].df.copy()
+            counts.update({k: {'all': len(df)}})
+            df.dropna(how='any',inplace=True)
+            counts[k].update({'full': len(df)})
+        return counts
+
     def import_all(self):
         for name in self.meta.keys():
             self.import_table(name)
         return
 
     def import_table(self, name):
+        print(f"importing table {name}")
         entry = self.meta[name]
         if 'filepath' in entry.keys():
             table = IpedsTable(filepath=entry['filepath'])
@@ -96,7 +106,7 @@ class IpedsCollection(object):
 
     def clean_table(self, name, dropna=False):
         print(f"cleaning table {name}")
-        self.import_table(name)
+        # self.import_table(name)
         entry = self.meta[name]
         table = entry['table']
         if entry['keep_columns'] == 'all':
