@@ -176,6 +176,6 @@ class IpedsCollection(object):
         self.clean_all()
         self.map_values_all()
         self.filter_all()
-        self.make_multicols_all()
         self.encode_columns_all()
+        self.make_multicols_all()
         self.merge_all(how=how, keep_table=keep_table)
